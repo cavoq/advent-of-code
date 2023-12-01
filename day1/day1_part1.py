@@ -1,19 +1,22 @@
 def read_input():
-    with open('day1_input.txt', 'r') as f:
+    with open('input/day1_input.txt', 'r') as f:
         return [str(line) for line in f]
 
 
 def calculate_calibration_value(str: str):
+
+    first_digit = ""
+    last_digit = ""
+
     for char in str:
         if char.isdigit():
-            first_digit = char
-            break
-    for char in str[::-1]:
-        if char.isdigit():
+            if not first_digit:
+                first_digit = char
             last_digit = char
-            break
+
     if not first_digit or not last_digit:
         return 0
+
     return int(first_digit + last_digit)
 
 

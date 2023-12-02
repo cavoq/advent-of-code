@@ -49,7 +49,7 @@ def read_games(file_path: str) -> Dict[int, Game]:
 def day2_part1():
     games_data = read_games('input/day2_input.txt')
     sum = get_sum_of_possible_games(games_data, 12, 13, 14)
-    print(sum)
+    print("Part 1 solution: " + str(sum))
 
 
 def day2_part2():
@@ -57,7 +57,7 @@ def day2_part2():
     total_sum_of_powers = 0
     for _, game in games_data.items():
         total_sum_of_powers += get_power_of_set_of_cubes(game)
-    print(total_sum_of_powers)
+    print("Part 2 solution: " + str(total_sum_of_powers))
 
 
 def get_power_of_set_of_cubes(game: Game):
@@ -93,4 +93,5 @@ def get_sum_of_possible_games(games: Dict[int, Game], num_red: int, num_green: i
 
 
 if __name__ == '__main__':
+    day2_part1()
     day2_part2()

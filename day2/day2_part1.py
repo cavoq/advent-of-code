@@ -26,11 +26,11 @@ class Game:
             for reveal in reveal_parts:
                 number, color = reveal.strip().split(' ')
                 if color == 'blue':
-                    rev.blue = number
+                    rev.blue = int(number)
                 elif color == 'green':
-                    rev.green = number
+                    rev.green = int(number)
                 elif color == 'red':
-                    rev.red = number
+                    rev.red = int(number)
             reveals.append(rev)
 
         return cls(game_id, reveals)
@@ -52,12 +52,37 @@ def day2_part1():
     print(sum)
 
 
+def day2_part2():
+    games_data = read_games('input/day2_input.txt')
+    total_sum_of_powers = 0
+    for _, game in games_data.items():
+        total_sum_of_powers += get_power_of_set_of_cubes(game)
+    print(total_sum_of_powers)
+
+
+def get_power_of_set_of_cubes(game: Game):
+
+    max_red = 0
+    max_green = 0
+    max_blue = 0
+
+    for reveal in game.reveals:
+        if reveal.red > max_red:
+            max_red = reveal.red
+        if reveal.green > max_green:
+            max_green = reveal.green
+        if reveal.blue > max_blue:
+            max_blue = reveal.blue
+
+    return max_red * max_green * max_blue
+
+
 def get_sum_of_possible_games(games: Dict[int, Game], num_red: int, num_green: int, num_blue: int) -> int:
     total_sum = 0
     for game_id, game in games.items():
         valid = True
         for reveal in game.reveals:
-            if int(reveal.blue) > num_blue or int(reveal.green) > num_green or int(reveal.red) > num_red:
+            if reveal.blue > num_blue or reveal.green > num_green or reveal.red > num_red:
                 valid = False
                 break
 
@@ -68,4 +93,4 @@ def get_sum_of_possible_games(games: Dict[int, Game], num_red: int, num_green: i
 
 
 if __name__ == '__main__':
-    day2_part1()
+    day2_part2()

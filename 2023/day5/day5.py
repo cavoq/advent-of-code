@@ -1,5 +1,6 @@
 
-INPUT_FILE = "input.dat"
+
+INPUT_FILE = "input-test.dat"
 
 
 def read_seed_block(input: str) -> list[str]:
@@ -34,6 +35,13 @@ def extract_seeds(input: str) -> list[int]:
             seeds = [int(x) for x in line.split(" ")]
             break
     return seeds
+
+
+def get_seed_pairs(seeds: list[int]) -> list[tuple[int, int]]:
+    pairs = []
+    for i in range(0, len(seeds), 2):
+        pairs.append((seeds[i], seeds[i + 1]))
+    return pairs
 
 
 def travel(seed_blocks: list[list[str]], seed: int) -> int:
@@ -71,7 +79,40 @@ def part1(seed_blocks: list[list[str]], seeds: list[int]):
     print("Part 1:", min)
 
 
+def reduce(seed_blocks: list[list[int]]):
+    ranges = set()
+    for block in seed_blocks:
+        for line in block:
+            source_start = int(line.split()[1])
+            destination_start = int(line.split()[0])
+            range_ = int(line.split()[2])
+            ranges.add((source_start, source_start + range_, destination_start))
+    return list(ranges)
+
+
+# Unfortunatelly, too slow for the real input
+def part2(seed_blocks: list[list[int]], seed_pairs: list[tuple[int, int]]):
+    ranges = reduce(seed_blocks)
+    ranges.sort()
+
+    min = -1
+    visited = set()
+    for seed_pair in seed_pairs:
+        end = seed_pair[0] + seed_pair[1] - 1
+        for i in range(seed_pair[0], end + 1):
+            if i in visited:
+                continue
+            loc = travel(seed_blocks, i)
+            if min == -1 or loc < min:
+                min = loc
+            visited.add(i)
+    
+    print("Part 2:", min)
+
+
 if __name__ == "__main__":
     seed_blocks = read_data(INPUT_FILE)
     seeds = extract_seeds(INPUT_FILE)
+    seed_pairs = get_seed_pairs(seeds)
     part1(seed_blocks, seeds)
+    part2(seed_blocks, seed_pairs)

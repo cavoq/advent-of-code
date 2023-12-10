@@ -36,7 +36,7 @@ std::vector<Hand> read_hands(const std::string &path)
     if (!inputFile.is_open())
     {
         std::cerr << "Unable to open file." << std::endl;
-        return hands; // Return empty vector if file not opened
+        return hands;
     }
 
     std::string line;
@@ -116,6 +116,61 @@ int get_value(std::string &hand)
     return HIGH_CARD;
 }
 
+int get_joker_value(Hand &hand)
+{
+    int jokers = 0;
+    for (int i = 0; i < HAND_SIZE; i++)
+    {
+        if (hand.cards[i] == 'J')
+        {
+            jokers++;
+        }
+    }
+
+    if (jokers == 4) return FIVE_OF_A_KIND;
+    if (jokers == 3)
+    {
+        if (hand.value == FULL_HOUSE)
+        {
+            return FIVE_OF_A_KIND;
+        }
+        return FOUR_OF_A_KIND;
+    }
+    if (jokers == 2)
+    {
+        if (hand.value == FULL_HOUSE)
+        {
+            return FIVE_OF_A_KIND;
+        }
+        if (hand.value == TWO_PAIR)
+        {
+            return FOUR_OF_A_KIND;
+        }
+        return THREE_OF_A_KIND;
+    }
+    if (jokers == 1)
+    {
+        if (hand.value == FOUR_OF_A_KIND)
+        {
+            return FIVE_OF_A_KIND;
+        }
+        if (hand.value == THREE_OF_A_KIND)
+        {
+            return FOUR_OF_A_KIND;
+        }
+        if (hand.value == TWO_PAIR)
+        {
+            return FULL_HOUSE;
+        }
+        if (hand.value == ONE_PAIR)
+        {
+            return THREE_OF_A_KIND;
+        }
+        return ONE_PAIR;
+    }
+    return hand.value;
+}
+
 void rank(std::vector<Hand> &hands)
 {
     std::sort(hands.begin(), hands.end(), [](const Hand &a, const Hand &b)
@@ -141,6 +196,39 @@ void rank(std::vector<Hand> &hands)
                   return false; });
 }
 
+void rank2(std::vector<Hand> &hands)
+{
+    std::sort(hands.begin(), hands.end(), [](const Hand &a, const Hand &b)
+              {
+                  if (a.value != b.value)
+                  {
+                      return a.value > b.value;
+                  }
+                  else
+                  {
+                      std::string valid_cards = "AKQT98765432J";
+                      for (int i = 0; i < HAND_SIZE; i++)
+                      {
+                          size_t index1 = valid_cards.find(a.cards[i]);
+                          size_t index2 = valid_cards.find(b.cards[i]);
+
+                          if (index1 != index2)
+                          {
+                              return index1 > index2;
+                          }
+                      }
+                  }
+                  return false; });
+}
+
+void print_hands(std::vector<Hand> &hands)
+{
+    for (Hand &hand : hands)
+    {
+        std::cout << hand.cards << " Bid: " << hand.bid << " Value: " << hand.value << std::endl;
+    }
+}
+
 void part1(std::vector<Hand> &hands)
 {
     int winnings = 0;
@@ -156,8 +244,28 @@ void part1(std::vector<Hand> &hands)
     std::cout << "Part 1: " << winnings << std::endl;
 }
 
+void part2(std::vector<Hand> &hands)
+{
+    int winnings = 0;
+    for (Hand &hand : hands)
+    {
+        hand.value = get_value(hand.cards);
+        if (hand.value != FIVE_OF_A_KIND)
+        {
+            hand.value = get_joker_value(hand);
+        }
+    }
+    rank2(hands);
+    for (int i = 0; i < hands.size(); i++)
+    {
+        winnings += hands[i].bid * (i + 1);
+    }
+    std::cout << "Part 2: " << winnings << std::endl;
+}
+
 int main()
 {
     std::vector<Hand> hands = read_hands(INPUT_PATH);
     part1(hands);
+    part2(hands);
 }

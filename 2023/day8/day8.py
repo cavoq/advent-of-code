@@ -1,5 +1,7 @@
 # /usr/bin/env python3
 
+from math import lcm
+
 FILE_IN = "input.dat"
 
 
@@ -11,13 +13,13 @@ class Node:
 
     @classmethod
     def from_str(cls, line: str):
-        value = line.strip(" ").split()[0]
+        value = line.strip(" ").split()[0].strip()
         elements = line.split('(')[1].split(')')[0].split(', ')
         elements = [elem.strip() for elem in elements]
         return cls(value, elements[0], elements[1])
 
     def __repr__(self):
-        return f"Node(value={self.value}, left={self.left}, right={self.right})"
+        return f"Node(value={self.value}, left={self.left}, right={self.right})\n"
 
 
 def read_nodes(file_path: str) -> dict[str, Node]:
@@ -35,26 +37,50 @@ def read_nodes(file_path: str) -> dict[str, Node]:
     return nodes, steps
 
 
-def part1(nodes: dict[str, Node], steps: str):
-    current_value = "AAA"
-    i, current_step = 0, steps[0]
+def lcm_of_list(numbers):
+    lcm_result = numbers[0]
+    for i in range(1, len(numbers)):
+        lcm_result = lcm(lcm_result, numbers[i])
+    return lcm_result
+
+
+def part1(nodes: dict[str, Node], steps: str, start_value: str = "AAA", end_suffix: str = "ZZZ"):
+    if start_value not in nodes:
+        return -1
+
+    i = 0
     total_steps = 0
-    while current_value != "ZZZ":
-        current_node = nodes[current_value]
-        if current_step == "L":
-            current_value = current_node.left
-        else:
-            current_value = current_node.right
+
+    while not start_value.endswith(end_suffix):
+        current_node = nodes[start_value]
+        if steps[i] == "L":
+            start_value = current_node.left
+        if steps[i] == "R":
+            start_value = current_node.right
         if i == len(steps) - 1:
             i = 0
         else:
             i += 1
         total_steps += 1
-        current_step = steps[i]
-        
-    print("Part 1:", total_steps)
+
+    return total_steps
+
+
+def part2(nodes: dict[str, Node], steps: str):
+    starting_values = {node.value for node in nodes.values()
+                       if node.value.endswith("A")}
+
+    min_steps = []
+    for value in starting_values:
+        min_steps.append(
+            part1(nodes, steps, start_value=value, end_suffix="Z"))
+
+    required_steps = lcm_of_list(min_steps)
+    print("Part 2:", required_steps)
 
 
 if __name__ == "__main__":
     nodes, steps = read_nodes(FILE_IN)
-    part1(nodes, steps)
+    total_steps = part1(nodes, steps)
+    print("Part 1:", total_steps)
+    part2(nodes, steps)

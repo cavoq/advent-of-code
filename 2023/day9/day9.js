@@ -24,15 +24,15 @@ function differenceSequence(sequence) {
 
 function extrapolateSequence(sequence) {
   let differences = [sequence];
-  let sum = 0;
 
   while (!sequence.every((element) => element === 0)) {
-    differences.push(differenceSequence(sequence));
     diff = differenceSequence(sequence);
+    differences.push(diff);
     sequence = diff;
   }
 
   differences[differences.length - 1].push(0);
+
   while (differences.length > 1) {
     const last = differences[differences.length - 1];
     const secondLast = differences[differences.length - 2];
@@ -46,14 +46,41 @@ function extrapolateSequence(sequence) {
   return differences[0][differences[0].length - 1];
 }
 
+function extrapolateSequenceBackwards(sequence) {
+  let differences = [sequence];
+
+  while (!sequence.every((element) => element === 0)) {
+    diff = differenceSequence(sequence);
+    differences.push(diff);
+    sequence = diff;
+  }
+
+  differences[differences.length - 1].unshift(0);
+  differences.reverse();
+
+  while (differences.length > 1) {
+    const first = differences[0];
+    const second = differences[1];
+    const newElement = second[0] - first[0];
+
+    differences.shift();
+    differences[0][0] = newElement;
+  }
+
+  return differences[0][0];
+}
+
 function part1() {
   let sequences = readInput(FILE_IN);
   let res = 0;
+  let res2 = 0;
   for (let i = 0; i < sequences.length; i++) {
     let sequence = sequences[i];
     res += extrapolateSequence(sequence);
+    res2 += extrapolateSequenceBackwards(sequence);
   }
   console.log("Part 1:", res);
+  console.log("Part 2:", res2);
 }
 
 part1();

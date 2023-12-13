@@ -49,51 +49,6 @@ std::vector<std::pair<Point, Point>> get_unique_galaxy_pairs(const std::vector<P
     return pairs;
 }
 
-bool expand_grid(std::vector<std::string> &grid)
-{
-    if (grid.size() == 0)
-    {
-        std::cerr << "Empty grid." << std::endl;
-        return false;
-    }
-
-    int rows = grid.size();
-    int cols = grid[0].size();
-
-    for (int i = 0; i < rows; ++i)
-    {
-        if (grid[i].find('#') == std::string::npos)
-        {
-            grid.insert(grid.begin() + i, std::string(cols, '.'));
-            ++rows;
-            ++i;
-        }
-    }
-
-    for (int j = 0; j < cols; ++j)
-    {
-        bool expand_column = true;
-        for (int i = 0; i < rows; ++i)
-        {
-            if (grid[i][j] == '#')
-            {
-                expand_column = false;
-                break;
-            }
-        }
-        if (expand_column)
-        {
-            for (int i = 0; i < rows; ++i)
-            {
-                grid[i].insert(grid[i].begin() + j, '.');
-            }
-            ++cols;
-            ++j;
-        }
-    }
-    return true;
-}
-
 std::pair<std::vector<int>, std::vector<int>> get_expanded_rows_cols(const std::vector<std::string> &grid)
 {
     int rows = grid.size();
@@ -129,11 +84,6 @@ std::pair<std::vector<int>, std::vector<int>> get_expanded_rows_cols(const std::
     }
 
     return {expanded_rows, expanded_cols};
-}
-
-int shortest_path(const Point &start, const Point &end)
-{
-    return abs(start.x - end.x) + abs(start.y - end.y);
 }
 
 int shortest_path(const Point &start, const Point &end,

@@ -65,6 +65,32 @@ func part1(list1, list2 []int) int {
   return sum
 }
 
+func count(list []int, num int) int {
+  count := 0
+  for _, elem := range list {
+    if elem == num {
+      count++
+    }
+  }
+  return count
+}
+
+func part2(list1, list2 []int) int {
+  score := 0
+  i, j := 0, 0
+
+  for i < len(list1) && j < len(list2) {
+    elem := list1[i]
+    count1 := count(list1[i:], elem)
+    count2 := count(list2, elem)
+    score += count1 * count2 * elem
+    i += count1
+    j += count2
+  }
+
+  return score
+}
+
 func main() {
   path := "input.txt"
   list1, list2, err := readInput(path)
@@ -77,4 +103,5 @@ func main() {
   sort.Ints(list2)
 
   fmt.Println("Part 1:", part1(list1, list2))
+  fmt.Println("Part 2:", part2(list1, list2))
 }

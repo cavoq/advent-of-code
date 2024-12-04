@@ -84,7 +84,23 @@ func solve(mtx [][]rune) int {
 	sum += countOccurences(diagonals)
 	return sum
 }
-  
+
+func solve2(mtx [][]rune) int {
+	occ := 0
+	for i := 1; i < len(mtx)-1; i++ {
+		for j := 1; j < len(mtx[0])-1; j++ {
+			if mtx[i][j] != 'A' {
+				continue
+			}
+			if ((mtx[i-1][j-1] == 'S' && mtx[i+1][j+1] == 'M') || (mtx[i-1][j-1] == 'M' && mtx[i+1][j+1] == 'S')) &&
+				((mtx[i-1][j+1] == 'S' && mtx[i+1][j-1] == 'M') || (mtx[i-1][j+1] == 'M' && mtx[i+1][j-1] == 'S')) {
+				occ++
+			}
+		}
+	}
+	return occ
+}
+
 func main() {
 	mtx := readInput("input.txt")
 	/*mtx := [][]byte{
@@ -100,5 +116,7 @@ func main() {
 	    []byte("MXMXAXMASX"),
 	}*/
 	occ := solve(mtx)
+	occ2 := solve2(mtx)
 	fmt.Println("Part 1:", occ)
+	fmt.Println("Part 2:", occ2)
 }

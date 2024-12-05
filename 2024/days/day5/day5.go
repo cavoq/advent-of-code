@@ -88,8 +88,71 @@ func isValid(prcd []int, rule Rule) bool {
 	return true
 }
 
-func solve(prcds [][]int, rules *[]Rule) int {
+func topologicalSort(rules []Rule) ([]int, error) {
+	graph := make(map[int][]int)
+	inDegree := make(map[int]int)
+
+	for _, rule := range rules {
+		a, b := rule.first, rule.second
+		graph[a] = append(graph[a], b)
+		inDegree[b]++
+		if _, exists := inDegree[a]; !exists {
+			inDegree[a] = 0
+		}
+	}
+
+	var queue []int
+	for node, degree := range inDegree {
+		if degree == 0 {
+			queue = append(queue, node)
+		}
+	}
+
+	var result []int
+	for len(queue) > 0 {
+		node := queue[0]
+		queue = queue[1:]
+
+		result = append(result, node)
+
+		for _, neighbor := range graph[node] {
+			inDegree[neighbor]--
+			if inDegree[neighbor] == 0 {
+				queue = append(queue, neighbor)
+			}
+		}
+	}
+
+	if len(result) != len(inDegree) {
+		return nil, fmt.Errorf("cycle detected in the input rules")
+	}
+
+	return result, nil
+}
+
+func getRelevantRules(prcd []int, rules *[]Rule) []Rule {
+	var relevantRules []Rule
+	for _, rule := range *rules {
+		firstIdx := -1
+		secondIdx := -1
+		for i, num := range prcd {
+			if num == rule.first {
+				firstIdx = i
+			}
+			if num == rule.second {
+				secondIdx = i
+			}
+		}
+		if firstIdx != -1 && secondIdx != -1 {
+			relevantRules = append(relevantRules, rule)
+		}
+	}
+	return relevantRules
+}
+
+func solve(prcds [][]int, rules *[]Rule) (int, int) {
 	sum := 0
+	var prcdsToFix [][]int
 	for _, prcd := range prcds {
 		valid := true
 		for _, rule := range *rules {
@@ -101,13 +164,29 @@ func solve(prcds [][]int, rules *[]Rule) int {
 		if valid {
 			middle := len(prcd) / 2
 			sum += prcd[middle]
+		} else {
+			prcdsToFix = append(prcdsToFix, prcd)
 		}
 	}
-	return sum
+
+	sum2 := 0
+	for _, prcd := range prcdsToFix {
+		relevantRules := getRelevantRules(prcd, rules)
+		sorted, err := topologicalSort(relevantRules)
+		if err != nil {
+			panic(err)
+		}
+		middle := len(sorted) / 2
+		sum2 += sorted[middle]
+	}
+
+	return sum, sum2
 }
 
 func main() {
 	rules := readRules("input.txt")
 	procedures := readProcodures("input.txt")
-	fmt.Println("Part 1:", solve(procedures, &rules))
+	sum, sum2 := solve(procedures, &rules)
+	fmt.Println("Part 1:", sum)
+	fmt.Println("Part 2:", sum2)
 }

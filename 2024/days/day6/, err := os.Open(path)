@@ -1,0 +1,38 @@
+package main
+
+import (
+  "fmt"
+  "os"
+  "bufio"
+)
+
+func readInput(path string) ([][]rune, guard[2]int) {
+  file, err := os.Open(path)
+  if err != nil {
+    panic(err)
+  }
+  defer file.Close()
+
+  scanner := bufio.NewScanner(file)
+  var mtx [][]rune
+  var guard [2]int
+
+  for i := 0; scanner.Scan() {
+    line := scanner.Text()
+    mtx = append(mtx, []rune(line))
+    for j, c := range line {
+      if c == '^' {
+      guard = [2]int{i, j}
+      }
+    }
+  return mtx, guard
+  }
+}
+
+func solve(mtx [][]rune) {
+}
+
+func main() {
+  mtx, guard := readInput("input.txt")
+  fmt.Println(guard)
+}
